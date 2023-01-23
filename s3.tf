@@ -16,8 +16,7 @@ resource "aws_s3_bucket" "bucket" {
 resource "aws_iam_policy" "s3_access_policy" {
   name        = "s3_access_policy"
   description = "Allow access to S3 bucket"
-  policy      = <<EOF
-  {
+  policy      = {
     "Version": "2012-10-17",
     "Statement": [
         {
@@ -42,7 +41,7 @@ resource "aws_iam_policy" "s3_access_policy" {
         }
     ]
   }
-  EOF
+  
 }
 
 resource "aws_iam_role_policy_attachment" "attach_s3_access_policy" {
