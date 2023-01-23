@@ -27,6 +27,114 @@ module "eks" {
       asg_desired_capacity          = 1
     },
   ]
+
+  # Worker groups (using Launch Templates)
+  worker_groups_launch_template = [
+    {
+      name                    = "spot-1"
+      override_instance_types = ["m5.large", "m5a.large", "m5d.large", "m5ad.large"]
+      spot_instance_pools     = 4
+      asg_max_size            = 5
+      asg_desired_capacity    = 5
+      kubelet_extra_args      = "--node-labels=node.kubernetes.io/lifecycle=spot"
+      public_ip               = true
+    },
+  ]
+
+  # Managed Node Groups
+  node_groups_defaults = {
+    ami_type  = "AL2_x86_64"
+    disk_size = 50
+  }
+
+  node_groups = {
+    example = {
+      desired_capacity = 1
+      max_capacity     = 10
+      min_capacity     = 1
+
+      instance_types = ["t3.large"]
+      capacity_type  = "SPOT"
+      k8s_labels = {
+        Environment = "test"
+        GithubRepo  = "aws-terraform-eks"
+        GithubOrg   = "srikanthdasari"
+      }
+      additional_tags = {
+        ExtraTag = "example"
+      }
+      taints = [
+        {
+          key    = "dedicated"
+          value  = "gpuGroup"
+          effect = "NO_SCHEDULE"
+        }
+      ]
+      update_config = {
+        max_unavailable_percentage = 50 # or set `max_unavailable`
+      }
+    }
+  }
+
+  # # Fargate
+  # fargate_profiles = {
+  #   default = {
+  #     name = "default"
+  #     selectors = [
+  #       {
+  #         namespace = "kube-system"
+  #         labels = {
+  #           k8s-app = "kube-dns"
+  #         }
+  #       },
+  #       {
+  #         namespace = "default"
+  #       }
+  #     ]
+
+  #     tags = {
+  #       Owner = "test"
+  #     }
+
+  #     timeouts = {
+  #       create = "20m"
+  #       delete = "20m"
+  #     }
+  #   }
+  # }
+
+  # AWS Auth (kubernetes_config_map)
+  map_roles = [
+    {
+      rolearn  = "arn:aws:iam::66666666666:role/role1"
+      username = "role1"
+      groups   = ["system:masters"]
+    },
+  ]
+
+  map_users = [
+    {
+      userarn  = "arn:aws:iam::66666666666:user/user1"
+      username = "user1"
+      groups   = ["system:masters"]
+    },
+    {
+      userarn  = "arn:aws:iam::66666666666:user/user2"
+      username = "user2"
+      groups   = ["system:masters"]
+    },
+  ]
+
+  map_accounts = [
+    "777777777777",
+    "888888888888",
+  ]
+
+  tags = {
+    Example    = local.name
+    GithubRepo = "terraform-aws-eks"
+    GithubOrg  = "terraform-aws-modules"
+  }
 }
 
 data "aws_eks_cluster" "cluster" {
