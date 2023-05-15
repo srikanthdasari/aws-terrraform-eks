@@ -1,67 +1,49 @@
-module "s3_bucket" {
-        source = "terraform-aws-modules/s3-bucket/aws"
+# module "s3_bucket" {
+#         source = "terraform-aws-modules/s3-bucket/aws"
 
-        bucket = local.bucket
-        acl    = "private"
+#         bucket = local.bucket
+#         acl    = "private"
 
-        versioning = {
-        enabled = true
-    }
-}
+#         versioning = {
+#         enabled = true
+#     }
+# }
 
-resource "aws_s3_bucket" "bucket" {
-    bucket = local.bucket
-}
+# resource "aws_s3_bucket" "bucket" {
+#     bucket = local.bucket
+# }
 
-resource "aws_iam_policy" "s3_access_policy" {
-  name        = "s3_access_policy"
-  description = "Allow access to S3 bucket"
-  policy      = jsonencode({
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "s3:ListBucket"
-            ],
-            "Resource": [
-                "arn:aws:s3:::$ {var.bucket_name}"
-            ]
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "s3:GetObject",
-                "s3:PutObject",
-                "s3:DeleteObject"
-            ],
-            "Resource": [
-                "arn:aws:s3:::$ {var.bucket_name}/*"
-            ]
-        }
-    ]
-  })
-  
-}
+# resource "aws_iam_policy" "s3_access_policy" {
+#   name        = "s3_access_policy"
+#   description = "Allow access to S3 bucket"
+#   policy      = jsondecode({
+#     "Version": "2012-10-17",
+#     "Statement": [
+#         {
+#             "Effect": "Allow",
+#             "Action": [
+#                 "s3:ListBucket"
+#             ],
+#             "Resource": [
+#                 "arn:aws:s3:::$ {var.bucket_name}"
+#             ]
+#         },
+#         {
+#             "Effect": "Allow",
+#             "Action": [
+#                 "s3:GetObject",
+#                 "s3:PutObject",
+#                 "s3:DeleteObject"
+#             ],
+#             "Resource": [
+#                 "arn:aws:s3:::$ {var.bucket_name}/*"
+#             ]
+#         }
+#     ]
+#   })
+# }
 
-resource "aws_iam_role" "eks_cluster_role" {
-  name = "my_eks_cluster_role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "eks.amazonaws.com"
-        }
-      },
-    ]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "attach_s3_access_policy" {
-  role       = aws_iam_role.eks_cluster_role.name
-  policy_arn = aws_iam_policy.s3_access_policy.arn
-}
+# resource "aws_iam_role_policy_attachment" "attach_s3_access_policy" {
+#   role       = aws_iam_role.eks_cluster_role.name
+#   policy_arn = aws_iam_policy.s3_access_policy.arn
+# }
